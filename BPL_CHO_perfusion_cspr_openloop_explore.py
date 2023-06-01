@@ -47,6 +47,7 @@
 # 2022-08-19 - Updated for BPL ver 2.1.0 beta and FMU-exolre 0.9.2
 # 2022-10-06 - Updated for FMU-explore 0.9.5 with disp() that do not include extra parameters with parLocation
 # 2023-02-13 - Consolidate FMU-explore to 0.9.6 and means parCheck and par() udpate and simu() with opts as arg
+# 2023-05-31 - Adjusted to from importlib.meetadata import version
 #------------------------------------------------------------------------------------------------------------------
 
 # Setup framework
@@ -58,7 +59,7 @@ import matplotlib.pyplot as plt
 from pyfmi import load_fmu
 from pyfmi.fmi import FMUException
 from itertools import cycle
-from importlib_metadata import version   # included in future Python 3.8
+from importlib.metadata import version  
 
 # Set the environment - for Linux a JSON-file in the FMU is read
 if platform.system() == 'Linux': locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
