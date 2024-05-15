@@ -48,6 +48,7 @@
 # 2022-10-06 - Updated for FMU-explore 0.9.5 with disp() that do not include extra parameters with parLocation
 # 2023-02-13 - Consolidate FMU-explore to 0.9.6 and means parCheck and par() udpate and simu() with opts as arg
 # 2023-05-31 - Adjusted to from importlib.meetadata import version
+# 2024-05-15 - Several updates of FMU now to 1.0.0
 #------------------------------------------------------------------------------------------------------------------
 
 # Setup framework
@@ -56,8 +57,12 @@ import platform
 import locale
 import numpy as np 
 import matplotlib.pyplot as plt 
+import matplotlib.image as img
+import zipfile
+
 from pyfmi import load_fmu
 from pyfmi.fmi import FMUException
+
 from itertools import cycle
 from importlib.metadata import version  
 
@@ -76,10 +81,7 @@ if platform.system() == 'Windows':
    flag_type = 'CS'
    fmu_model ='BPL_CHO_Perfusion_cspr_openloop_windows_jm_cs.fmu'        
    model = load_fmu(fmu_model, log_level=0)  
-elif platform.system() == 'Linux':
-#   flag_vendor = input('Linux - run FMU from JModelica (JM) or OpenModelica (OM)?')  
-#   flag_type = input('Linux - run FMU-CS (CS) or ME (ME)?')  
-#   print()   
+elif platform.system() == 'Linux':  
    flag_vendor = 'OM'
    flag_type = 'ME'
    if flag_vendor in ['OM','om']:
@@ -115,12 +117,13 @@ if flag_vendor in ['JM', 'jm']:
 elif flag_vendor in ['OM', 'om']:
    MSL_usage = '3.2.3 - used components: RealInput, RealOutput, CombiTimeTable, Types' 
    MSL_version = '3.2.3'
-   BPL_version = 'Bioprocess Library version 2.1.1-beta' 
+   BPL_version = 'Bioprocess Library version 2.2.0' 
 else:    
    print('There is no FMU for this platform')
 
 # Simulation time
 global simulationTime; simulationTime = 1000.0
+global prevFinalTime; prevFinalTime = 0
 
 # Dictionary of time discrete states
 timeDiscreteStates = {} 
@@ -128,23 +131,27 @@ timeDiscreteStates = {}
 # Define a minimal compoent list of the model as a starting point for describe('parts')
 component_list_minimum = ['bioreactor', 'bioreactor.culture', 'bioreactor.broth_decay']
 
+# Process diagram
+fmu_process_diagram ='BPL_GUI_CHO_Perfusion_cspr_openloop_process_diagram_om.png'
+
 #------------------------------------------------------------------------------------------------------------------
 #  Specific application constructs: stateDict, parDict, diagrams, newplot(), describe()
 #------------------------------------------------------------------------------------------------------------------
    
 # Create stateDict that later will be used to store final state and used for initialization in 'cont':
-#stateDict = model.get_states_list()
-global stateDict
+global stateDict; stateDict =  {}
+stateDict = model.get_states_list()
+stateDict.update(timeDiscreteStates)
 
 # Create parDict
 global parDict; parDict = {}
-parDict['V_0']    = 0.35          # L
-parDict['VXv_0'] = 0.35*0.2       
-parDict['VXd_0'] = 0.0            
-parDict['VG_0'] = 0.35*18.0       
-parDict['VGn_0'] = 0.35*10.0      
-parDict['VL_0'] = 0.0             
-parDict['VN_0'] = 0.0             
+parDict['V_start']    = 0.35          # L
+parDict['VXv_start'] = 0.35*0.2       
+parDict['VXd_start'] = 0.0            
+parDict['VG_start'] = 0.35*18.0       
+parDict['VGn_start'] = 0.35*10.0      
+parDict['VL_start'] = 0.0             
+parDict['VN_start'] = 0.0             
 
 parDict['qG_max1'] = 0.2971
 parDict['qG_max2'] = 0.0384
@@ -175,13 +182,13 @@ parDict['t2'] = 500.0          # h
 parDict['F2'] = 0.0300         # L/h
 
 global parLocation; parLocation = {}
-parLocation['V_0'] = 'bioreactor.V_0'
-parLocation['VXv_0'] = 'bioreactor.m_0[1]'
-parLocation['VXd_0'] = 'bioreactor.m_0[2]'
-parLocation['VG_0'] = 'bioreactor.m_0[3]'
-parLocation['VGn_0'] = 'bioreactor.m_0[4]'
-parLocation['VL_0'] = 'bioreactor.m_0[5]'
-parLocation['VN_0'] = 'bioreactor.m_0[6]'
+parLocation['V_start'] = 'bioreactor.V_start'
+parLocation['VXv_start'] = 'bioreactor.m_start[1]'
+parLocation['VXd_start'] = 'bioreactor.m_start[2]'
+parLocation['VG_start'] = 'bioreactor.m_start[3]'
+parLocation['VGn_start'] = 'bioreactor.m_start[4]'
+parLocation['VL_start'] = 'bioreactor.m_start[5]'
+parLocation['VN_start'] = 'bioreactor.m_start[6]'
 
 parLocation['qG_max1'] = 'bioreactor.culture.qG_max1'
 parLocation['qG_max2'] = 'bioreactor.culture.qG_max2'
@@ -216,12 +223,12 @@ parLocation['mu_d'] = 'bioreactor.culture.mu_d'
 
 # Parameter value check - especially for hysteresis to avoid runtime error
 global parCheck; parCheck = []
-parCheck.append("parDict['V_0'] > 0")
-parCheck.append("parDict['VXv_0'] >= 0")
-parCheck.append("parDict['VG_0'] >= 0")
-parCheck.append("parDict['VGn_0'] >= 0")
-parCheck.append("parDict['VL_0'] >= 0")
-parCheck.append("parDict['VN_0'] >= 0")
+parCheck.append("parDict['V_start'] > 0")
+parCheck.append("parDict['VXv_start'] >= 0")
+parCheck.append("parDict['VG_start'] >= 0")
+parCheck.append("parDict['VGn_start'] >= 0")
+parCheck.append("parDict['VL_start'] >= 0")
+parCheck.append("parDict['VN_start'] >= 0")
 parCheck.append("parDict['t1'] < parDict['t2']")
 
 # Create list of diagrams to be plotted by simu()
@@ -583,7 +590,7 @@ def describe(name, decimals=3):
 
 #------------------------------------------------------------------------------------------------------------------
 #  General code 
-FMU_explore = 'FMU-explore version 0.9.6'
+FMU_explore = 'FMU-explore version 1.0.0'
 #------------------------------------------------------------------------------------------------------------------
 
 # Define function par() for parameter update
@@ -605,12 +612,12 @@ def par(parDict=parDict, parCheck=parCheck, parLocation=parLocation, *x, **x_kwa
 
 # Define function init() for initial values update
 def init(parDict=parDict, *x, **x_kwarg):
-   """ Set initial values and the name should contain string '_0' to be accepted.
+   """ Set initial values and the name should contain string '_start' to be accepted.
        The function can handle general parameter string location names if entered as a dictionary. """
    x_kwarg.update(*x)
    x_init={}
    for key in x_kwarg.keys():
-      if '_0' in key: 
+      if '_start' in key: 
          x_init.update({key: x_kwarg[key]})
       else:
          print('Error:', key, '- seems not an initial value, use par() instead - check the spelling')
@@ -681,6 +688,9 @@ def simu(simulationTimeLocal=simulationTime, mode='Initial', options=opts_std, \
    # Global variables
    global model, parDict, stateDict, prevFinalTime, simulationTime, sim_res, t
    
+   # Simulation flag
+   simulationDone = False
+   
    # Transfer of argument to global variable
    simulationTime = simulationTimeLocal 
       
@@ -703,52 +713,61 @@ def simu(simulationTimeLocal=simulationTime, mode='Initial', options=opts_std, \
       for key in parDict.keys():
          model.set(parLocation[key],parDict[key])   
       # Simulate
-      sim_res = model.simulate(final_time=simulationTime, options=options)      
+      sim_res = model.simulate(final_time=simulationTime, options=options)  
+      simulationDone = True
    elif mode in ['Continued', 'continued', 'cont']:
-      # Set parameters and intial state values:
-      for key in parDict.keys():
-         model.set(parLocation[key],parDict[key])                
-      try: 
+
+      if prevFinalTime == 0: 
+         print("Error: Simulation is first done with default mode = init'")      
+      else:
+         
+         # Set parameters and intial state values:
+         for key in parDict.keys():
+            model.set(parLocation[key],parDict[key])                
+
          for key in stateDict.keys():
             if not key[-1] == ']':
-               model.set(key+'_0', stateDict[key])
+               if key[-3:] == 'I.y': 
+                  model.set(key[:-10]+'I_start', stateDict[key]) 
+               elif key[-3:] == 'D.x': 
+                  model.set(key[:-10]+'D_start', stateDict[key]) 
+               else:
+                  model.set(key+'_start', stateDict[key])
             elif key[-3] == '[':
-               model.set(key[:-3]+'_0'+key[-3:], stateDict[key]) 
+               model.set(key[:-3]+'_start'+key[-3:], stateDict[key]) 
             elif key[-4] == '[':
-               model.set(key[:-4]+'_0'+key[-4:], stateDict[key]) 
+               model.set(key[:-4]+'_start'+key[-4:], stateDict[key]) 
             elif key[-5] == '[':
-               model.set(key[:-5]+'_0'+key[-5:], stateDict[key]) 
+               model.set(key[:-5]+'_start'+key[-5:], stateDict[key]) 
             else:
                print('The state vecotr has more than 1000 states')
                break
-      except NameError:
-         print("Simulation is first done with default mode='init'")
-         prevFinalTime = 0
-      # Simulate
-      sim_res = model.simulate(start_time=prevFinalTime,
-                              final_time=prevFinalTime + simulationTime,
-                              options=options)     
+
+         # Simulate
+         sim_res = model.simulate(start_time=prevFinalTime,
+                                 final_time=prevFinalTime + simulationTime,
+                                 options=options) 
+         simulationDone = True             
    else:
       print("Simulation mode not correct")
-    
-   # Extract data
-   t = sim_res['time']
- 
-   # Plot diagrams
-   linetype = next(linecycler)    
-   for command in diagrams: eval(command)
-            
-   # Store final state values stateDict:
-   try: stateDict
-   except NameError:
-      stateDict = {}
-      stateDict = model.get_states_list()
-      stateDict.update(timeDiscreteStates)
-   for key in list(stateDict.keys()):
-      stateDict[key] = model.get(key)[0]        
 
-   # Store time from where simulation will start next time
-   prevFinalTime = model.time
+   if simulationDone:
+    
+      # Extract data
+      t = sim_res['time']
+ 
+      # Plot diagrams
+      linetype = next(linecycler)    
+      for command in diagrams: eval(command)
+            
+      # Store final state values stateDict:
+      for key in list(stateDict.keys()): stateDict[key] = model.get(key)[0]        
+
+      # Store time from where simulation will start next time
+      prevFinalTime = model.time
+   
+   else:
+      print('Error: No simulation done')
       
 # Describe model parts of the combined system
 def describe_parts(component_list=[]):
@@ -822,6 +841,20 @@ def describe_general(name, decimals):
       else:
          print(description, ':', np.round(value, decimals), '[',unit,']')
          
+# Plot process diagram
+def process_diagram(fmu_model=fmu_model, fmu_process_diagram=fmu_process_diagram):   
+   try:
+       process_diagram = zipfile.ZipFile(fmu_model, 'r').open('documentation/processDiagram.png')
+   except KeyError:
+       print('No processDiagram.png file in the FMU, but try the file on disk.')
+       process_diagram = fmu_process_diagram
+   try:
+       plt.imshow(img.imread(process_diagram))
+       plt.axis('off')
+       plt.show()
+   except FileNotFoundError:
+       print('And no such file on disk either')
+         
 # Describe framework
 def BPL_info():
    print()
@@ -832,9 +865,10 @@ def BPL_info():
    print(' - newplot()   - make a new plot')
    print(' - show()      - show plot from previous simulation')
    print(' - disp()      - display parameters and initial values from the last simulation')
-   print(' - describe()  - describe culture, broth, parameters, variables with values / units')
+   print(' - describe()  - describe culture, broth, parameters, variables with values/units')
    print()
    print('Note that both disp() and describe() takes values from the last simulation')
+   print('and the command process_diagram() brings up the main configuration')
    print()
    print('Brief information about a command by help(), eg help(simu)') 
    print('Key system information is listed with the command system_info()')
