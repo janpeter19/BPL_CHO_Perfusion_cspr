@@ -1,4 +1,4 @@
-# Figure - Simulation of CHO fedbatch reactor with well designed feed profile
+# Figure - Simulation of perfusion reactor with openloop control of perfusion rate
 #          with functions added to facilitate explorative simulation work 
 #
 # Author: Jan Peter Axelsson
@@ -221,6 +221,7 @@ parLocation['mu_d'] = 'bioreactor.culture.mu_d'
 global key_variables; key_variables = []
 parLocation['mu'] = 'bioreactor.culture.mu'; key_variables.append(parLocation['mu'])
 parLocation['mu_d'] = 'bioreactor.culture.mu_d'; key_variables.append(parLocation['mu_d'])
+parLocation['feedtank.W'] = 'feedtank.W'; key_variables.append(parLocation['feedtank.W'])
 
 # Parameter value check - especially for hysteresis to avoid runtime error
 global parCheck; parCheck = []
