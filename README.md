@@ -5,7 +5,7 @@ This example of cultivation of CHO culture using perfusion technique is in labor
 ![](Fig_BPL_CHO_Perfusion.png)
 
 You start up the notebook in Colab by pressing here
-[start BPL notebook](https://colab.research.google.com/github/janpeter19/BPL_CHO_Perfusion/blob/main/BPL_CHO_Perfusion_colab.ipynb)
+[start BPL notebook](https://colab.research.google.com/github/janpeter19/BPL_CHO_Perfusion/blob/main/Notes_BPL_CHO_Perfusion_cspr_opennloop_colab.ipynb)
 or alternatively (experimentally) 
 [start BPL notebook with FMPy](https://colab.research.google.com/github/janpeter19/BPL_CHO_Perfusion/blob/main/Notes_BPL_CHO_Perfusion_cspr_opennloop_fmpy_colab.ipynb)
 
