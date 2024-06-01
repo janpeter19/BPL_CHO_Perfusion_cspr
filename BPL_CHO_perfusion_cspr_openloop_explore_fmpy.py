@@ -16,6 +16,7 @@
 # 2024-03-07 - Update FMU-explore 0.9.9 - now with _0 replaced with _start everywhere
 # 2024-05-20 - Updated the OpenModelica version to 1.23.0-dev
 # 2023-05-21 - Adapt the script to the perfusion process setup
+# 2024-06-01 - Corrected model_get() to handle string values as well - improvement very small and keep ver 1.0.0
 #-------------------------------------------------------------------------------------------------------------------
 
 # Setup framework
@@ -497,8 +498,11 @@ def model_get(parLoc, model_description=model_description):
          try:
             if par_var[k].name in start_values.keys():
                   value = start_values[par_var[k].name]
-            elif par_var[k].variability in ['constant', 'fixed']:        
-                  value = float(par_var[k].start)     
+            elif par_var[k].variability in ['constant', 'fixed']: 
+               if par_var[k].type in ['Integer', 'Real']: 
+                  value = float(par_var[k].start)      
+               if par_var[k].type in ['String']: 
+                  value = par_var[k].start                        
             elif par_var[k].variability == 'continuous':
                try:
                   timeSeries = sim_res[par_var[k].name]
@@ -510,7 +514,7 @@ def model_get(parLoc, model_description=model_description):
                value = None
          except NameError:
             print('Error: Information available after first simution')
-            value = None
+            value = None          
    return value
 
 def model_get_variable_description(parLoc, model_description=model_description):
