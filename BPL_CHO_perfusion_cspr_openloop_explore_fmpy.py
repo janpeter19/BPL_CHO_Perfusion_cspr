@@ -17,6 +17,7 @@
 # 2024-05-20 - Updated the OpenModelica version to 1.23.0-dev
 # 2023-05-21 - Adapt the script to the perfusion process setup
 # 2024-06-01 - Corrected model_get() to handle string values as well - improvement very small and keep ver 1.0.0
+# 2024-06-14 - I took away subscript in describe('broth') call - here is a difference to PyFMI interaction
 #-------------------------------------------------------------------------------------------------------------------
 
 # Setup framework
@@ -407,33 +408,33 @@ def describe(name, decimals=3):
 
    elif name in ['broth', 'liquidphase', 'liquid-phase''media']:
 
-      Xv  = model_get('liquidphase.Xv')[0]; 
+      Xv  = model_get('liquidphase.Xv'); 
       Xv_description = model_get_variable_description('liquidphase.Xv'); 
-      Xv_mw = model_get('liquidphase.mw[1]')[0]
+      Xv_mw = model_get('liquidphase.mw[1]')
       
-      Xd = model_get('liquidphase.Xd')[0]; 
+      Xd = model_get('liquidphase.Xd'); 
       Xd_description = model_get_variable_description('liquidphase.Xd'); 
-      Xd_mw = model_get('liquidphase.mw[2]')[0]
+      Xd_mw = model_get('liquidphase.mw[2]')
       
-      G = model_get('liquidphase.G')[0]; 
+      G = model_get('liquidphase.G'); 
       G_description = model_get_variable_description('liquidphase.G'); 
-      G_mw = model_get('liquidphase.mw[3]')[0]
+      G_mw = model_get('liquidphase.mw[3]')
       
-      Gn = model_get('liquidphase.Gn')[0]; 
+      Gn = model_get('liquidphase.Gn'); 
       Gn_description = model_get_variable_description('liquidphase.Gn'); 
-      Gn_mw = model_get('liquidphase.mw[4]')[0]
+      Gn_mw = model_get('liquidphase.mw[4]')
       
-      L = model_get('liquidphase.L')[0]; 
+      L = model_get('liquidphase.L'); 
       L_description = model_get_variable_description('liquidphase.L'); 
-      L_mw = model_get('liquidphase.mw[5]')[0]
+      L_mw = model_get('liquidphase.mw[5]')
       
-      N = model_get('liquidphase.N')[0]; 
+      N = model_get('liquidphase.N'); 
       N_description = model_get_variable_description('liquidphase.N'); 
-      N_mw = model_get('liquidphase.mw[6]')[0]
+      N_mw = model_get('liquidphase.mw[6]')
       
-      Pr = model_get('liquidphase.Pr')[0]; 
+      Pr = model_get('liquidphase.Pr'); 
       Pr_description = model_get_variable_description('liquidphase.Pr'); 
-      Pr_mw = model_get('liquidphase.mw[7]')[0]
+      Pr_mw = model_get('liquidphase.mw[7]')
 
       print('Reactor broth substances included in the model')
       print()
