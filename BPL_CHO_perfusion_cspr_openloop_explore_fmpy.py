@@ -18,6 +18,7 @@
 # 2023-05-21 - Adapt the script to the perfusion process setup
 # 2024-06-01 - Corrected model_get() to handle string values as well - improvement very small and keep ver 1.0.0
 # 2024-06-14 - I took away subscript in describe('broth') call - here is a difference to PyFMI interaction
+# 2024-08-13 - Corrected model_get() to handle calculatedParameters - call it ver 1.0.1
 #-------------------------------------------------------------------------------------------------------------------
 
 # Setup framework
@@ -457,7 +458,7 @@ def describe(name, decimals=3):
 
 #------------------------------------------------------------------------------------------------------------------
 #  General code 
-FMU_explore = 'FMU-explore for FMPy version 1.0.0'
+FMU_explore = 'FMU-explore for FMPy version 1.0.1'
 #------------------------------------------------------------------------------------------------------------------
 
 # Define function par() for parameter update
@@ -497,24 +498,25 @@ def model_get(parLoc, model_description=model_description):
    for k in range(len(par_var)):
       if par_var[k].name == parLoc:
          try:
-            if par_var[k].name in start_values.keys():
-                  value = start_values[par_var[k].name]
-            elif par_var[k].variability in ['constant', 'fixed']: 
-               if par_var[k].type in ['Integer', 'Real']: 
-                  value = float(par_var[k].start)      
-               if par_var[k].type in ['String']: 
-                  value = par_var[k].start                        
+            if (par_var[k].causality in ['local']) & (par_var[k].variability in ['constant']):
+               value = float(par_var[k].start)                 
+            elif par_var[k].causality in ['parameter']: 
+               value = float(par_var[k].start)  
+            elif par_var[k].causality in ['calculatedParameter']: 
+               value = float(sim_res[par_var[k].name][0]) 
+            elif par_var[k].name in start_values.keys():
+               value = start_values[par_var[k].name]   
             elif par_var[k].variability == 'continuous':
                try:
                   timeSeries = sim_res[par_var[k].name]
-                  value = timeSeries[-1]
+                  value = float(timeSeries[-1])
                except (AttributeError, ValueError):
                   value = None
                   print('Variable not logged')
             else:
                value = None
          except NameError:
-            print('Error: Information available after first simution')
+            print('Error: Information available after first simulation')
             value = None          
    return value
 
