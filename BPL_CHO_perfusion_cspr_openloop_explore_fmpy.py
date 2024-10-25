@@ -19,6 +19,7 @@
 # 2024-06-01 - Corrected model_get() to handle string values as well - improvement very small and keep ver 1.0.0
 # 2024-06-14 - I took away subscript in describe('broth') call - here is a difference to PyFMI interaction
 # 2024-08-13 - Corrected model_get() to handle calculatedParameters - call it ver 1.0.1
+# 2024-10-25 - Update BPL 2.2.2 - GUI
 #-------------------------------------------------------------------------------------------------------------------
 
 # Setup framework
@@ -87,7 +88,7 @@ if flag_vendor in ['JM', 'jm']:
 elif flag_vendor in ['OM', 'om']:
    MSL_usage = '3.2.3 - used components: RealInput, RealOutput, CombiTimeTable, Types' 
    MSL_version = '3.2.3'
-   BPL_version = 'Bioprocess Library version 2.2.1 - GUI' 
+   BPL_version = 'Bioprocess Library version 2.2.2 - GUI' 
 else:    
    print('There is no FMU for this platform')
    

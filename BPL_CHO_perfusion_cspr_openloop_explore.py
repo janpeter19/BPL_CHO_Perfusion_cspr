@@ -50,6 +50,7 @@
 # 2023-05-31 - Adjusted to from importlib.meetadata import version
 # 2024-05-15 - Several updates of FMU now to 1.0.0
 # 2024-05-20 - Updated the OpenModelica version to 1.23.0-dev
+# 2024-10-25 - Update BPL 2.2.2 - GUI
 #------------------------------------------------------------------------------------------------------------------
 
 # Setup framework
@@ -118,7 +119,7 @@ if flag_vendor in ['JM', 'jm']:
 elif flag_vendor in ['OM', 'om']:
    MSL_usage = '3.2.3 - used components: RealInput, RealOutput, CombiTimeTable, Types' 
    MSL_version = '3.2.3'
-   BPL_version = 'Bioprocess Library version 2.2.1 - GUI' 
+   BPL_version = 'Bioprocess Library version 2.2.2 - GUI' 
 else:    
    print('There is no FMU for this platform')
 
