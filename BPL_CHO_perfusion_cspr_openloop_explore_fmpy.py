@@ -22,6 +22,7 @@
 # 2024-10-25 - Update BPL 2.2.2 - GUI
 # 2024-11-07 - Update BPL 2.3.0
 # 2025-03-01 - Try with CHO - extended with Xl i.e. lysed cells that bring toxicity
+# 2025-03-03 - Corrected describe('broth')
 #-------------------------------------------------------------------------------------------------------------------
 
 # Setup framework
@@ -426,9 +427,9 @@ def describe(name, decimals=3):
       Xd_description = model_get_variable_description('liquidphase.Xd'); 
       Xd_mw = model_get('liquidphase.mw[2]')
       
-      Xl = model.get('liquidphase.Xl')[0]; 
-      Xl_description = model.get_variable_description('liquidphase.Xl'); 
-      Xl_mw = model.get('liquidphase.mw[2]')[0]
+      Xl = model_get('liquidphase.Xl'); 
+      Xl_description = model_get_variable_description('liquidphase.Xl'); 
+      Xl_mw = model_get('liquidphase.mw[2]')
 
       G = model_get('liquidphase.G'); 
       G_description = model_get_variable_description('liquidphase.G'); 
@@ -454,7 +455,7 @@ def describe(name, decimals=3):
       print()
       print(Xv_description, 'index = ', Xv, 'molecular weight = ', Xv_mw, 'Da')
       print(Xd_description, '  index = ', Xd, 'molecular weight = ', Xd_mw, 'Da')
-      print(Xl_description, '  index = ', Xl, 'molecular weight = ', Xl_mw, 'Da')
+      print(Xl_description, ' index = ', Xl, 'molecular weight = ', Xl_mw, 'Da')
       print(G_description, '     index = ', G, 'molecular weight = ', G_mw, 'Da')
       print(Gn_description, '   index = ', Gn, 'molecular weight = ', Gn_mw, 'Da')
       print(L_description, '     index = ', L, 'molecular weight = ', L_mw, 'Da')

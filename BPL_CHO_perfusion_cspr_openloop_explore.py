@@ -540,7 +540,7 @@ def describe(name, decimals=3):
       print()
       print(Xv_description, 'index = ', Xv, 'molecular weight = ', Xv_mw, 'Da')
       print(Xd_description, '  index = ', Xd, 'molecular weight = ', Xd_mw, 'Da')
-      print(Xl_description, '  index = ', Xl, 'molecular weight = ', Xl_mw, 'Da')
+      print(Xl_description, ' index = ', Xl, 'molecular weight = ', Xl_mw, 'Da')
       print(G_description, '     index = ', G, 'molecular weight = ', G_mw, 'Da')
       print(Gn_description, '   index = ', Gn, 'molecular weight = ', Gn_mw, 'Da')
       print(L_description, '     index = ', L, 'molecular weight = ', L_mw, 'Da')
