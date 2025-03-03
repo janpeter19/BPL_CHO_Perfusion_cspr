@@ -46,14 +46,12 @@
 # 2022-03-28 - Updated to FMU-explore 0.9.0 - model.reset(), and par(), init()
 # 2022-08-19 - Updated for BPL ver 2.1.0 beta and FMU-exolre 0.9.2
 # 2022-10-06 - Updated for FMU-explore 0.9.5 with disp() that do not include extra parameters with parLocation
-# 2023-02-16 - Consolidate FMU-explore to 0.9.6 and means parCheck and par() udpate and simu() with opts as arg
-# 2023-03-29 - Update FMU-explore 0.9.7
-# 2024-03-02 - Update FMU-explore 0.9.8 and 0.9.9 - now with _0 replaced with _start everywhere
-# 2024-05-15 - Polish script
-# 2024-10-14 - Update FMU-explore 1.0.0
-# 2024-11-04 - Removed GUI from process diagram
+# 2023-02-13 - Consolidate FMU-explore to 0.9.6 and means parCheck and par() udpate and simu() with opts as arg
+# 2023-05-31 - Adjusted to from importlib.meetadata import version
+# 2024-05-15 - Several updates of FMU now to 1.0.0
+# 2024-05-20 - Updated the OpenModelica version to 1.23.0-dev
+# 2024-10-25 - Update BPL 2.2.2 - GUI
 # 2024-11-07 - Update BPL 2.3.0
-# 2025-03-01 - Try with CHO - extended with Xl i.e. lysed cells that bring toxicity
 #------------------------------------------------------------------------------------------------------------------
 
 # Setup framework
@@ -63,13 +61,13 @@ import locale
 import numpy as np 
 import matplotlib.pyplot as plt 
 import matplotlib.image as img
-import zipfile 
+import zipfile
 
 from pyfmi import load_fmu
 from pyfmi.fmi import FMUException
 
 from itertools import cycle
-from importlib_metadata import version   # included in future Python 3.8
+from importlib.metadata import version  
 
 # Set the environment - for Linux a JSON-file in the FMU is read
 if platform.system() == 'Linux': locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
@@ -86,11 +84,11 @@ if platform.system() == 'Windows':
    flag_type = 'CS'
    fmu_model ='BPL_CHO_Perfusion_cspr_openloop_windows_jm_cs.fmu'        
    model = load_fmu(fmu_model, log_level=0)  
-elif platform.system() == 'Linux':
+elif platform.system() == 'Linux':  
    flag_vendor = 'OM'
    flag_type = 'ME'
    if flag_vendor in ['OM','om']:
-      print('Linux - run FMU pre-compiled OpenModelica 1.21.0') 
+      print('Linux - run FMU pre-comiled OpenModelica') 
       if flag_type in ['CS','cs']:         
          fmu_model ='BPL_CHO_Perfusion_cspr_openloop_linux_om_cs.fmu'    
          model = load_fmu(fmu_model, log_level=0) 
@@ -120,7 +118,7 @@ if flag_vendor in ['JM', 'jm']:
    MSL_version = model.get('MSL.version')[0]
    BPL_version = model.get('BPL.version')[0]
 elif flag_vendor in ['OM', 'om']:
-   MSL_usage = '3.2.3 - used components: RealInput, RealOutput' 
+   MSL_usage = '3.2.3 - used components: RealInput, RealOutput, CombiTimeTable, Types' 
    MSL_version = '3.2.3'
    BPL_version = 'Bioprocess Library version 2.3.0' 
 else:    
@@ -136,7 +134,7 @@ timeDiscreteStates = {}
 # Define a minimal compoent list of the model as a starting point for describe('parts')
 component_list_minimum = ['bioreactor', 'bioreactor.culture', 'bioreactor.broth_decay']
 
-
+# Process diagram
 fmu_process_diagram ='BPL_CHO_Perfusion_cspr_openloop_process_diagram_om.png'
 
 #------------------------------------------------------------------------------------------------------------------
@@ -152,8 +150,7 @@ stateDict.update(timeDiscreteStates)
 global parDict; parDict = {}
 parDict['V_start']    = 0.35          # L
 parDict['VXv_start'] = 0.35*0.2       
-parDict['VXd_start'] = 0.0 
-parDict['VXl_start'] = 0.0              
+parDict['VXd_start'] = 0.0            
 parDict['VG_start'] = 0.35*18.0       
 parDict['VGn_start'] = 0.35*10.0      
 parDict['VL_start'] = 0.0             
@@ -164,68 +161,57 @@ parDict['qG_max2'] = 0.0384
 parDict['qGn_max1'] = 0.1238
 parDict['qGn_max2'] = 0.0218
 parDict['mu_d_max'] = 0.1302
-parDict['k_toxic'] = 0.0
-parDict['alpha'] = 0
-parDict['beta'] = 10.0/24
 
-parDict['k_lysis_v'] = 0.0
-parDict['k_lysis_d'] = 0.0
+parDict['k_lysis'] = 0.0
 
 eps = 0.10
-parDict['eps'] = eps                  # Fraction filtrate flow
-parDict['alpha_Xv'] = 0.03            # Fraction Xv in filtrate flow
-parDict['alpha_Xd'] = 0.03            # Fraction Xd in filtrate flow
-parDict['alpha_Xl'] = eps             # Fraction Xl in filtrate flow
-parDict['alpha_G'] = eps              # Fraction G in filtrate flow
-parDict['alpha_Gn'] = eps             # Fraction Gn in filtrate flow
-parDict['alpha_L'] = eps              # Fraction L in filtrate flow
-parDict['alpha_N'] = eps              # Fraction N in filtrate flow
-parDict['alpha_Pr'] = eps             # Fraction Pr in filtrate flow
+parDict['eps'] = eps           # Fraction filtrate flow
+parDict['alpha_Xv'] = 0.03     # Fraction Xv in filtrate flow
+parDict['alpha_Xd'] = 0.03     # Fraction Xd in filtrate flow
+parDict['alpha_G'] = eps       # Fraction G in filtrate flow
+parDict['alpha_Gn'] = eps      # Fraction Gn in filtrate flow
+parDict['alpha_L'] = eps       # Fraction L in filtrate flow
+parDict['alpha_N'] = eps       # Fraction N in filtrate flow
+parDict['alpha_Pr'] = eps      # Fraction Pr in filtrate flow
 
-parDict['G_in']  =  15.0              # mM
-parDict['Gn_in']  =  11.0             # mM
+parDict['G_in']  =  15.0       # mM
+parDict['Gn_in']  =  11.0      # mM
 
-parDict['samplePeriod'] = 1           # h 
-parDict['mu_ref'] = 0.030             # 1/h 
-parDict['t1'] = 70.0                  # h      
-parDict['F1'] = 0.0020                # L/h
-parDict['t2'] = 500.0                 # h      
-parDict['F2'] = 0.0300                # L/h
+parDict['samplePeriod'] = 1    # h 
+parDict['mu_ref'] = 0.030      # 1/h 
+parDict['t1'] = 70.0           # h      
+parDict['F1'] = 0.0020         # L/h
+parDict['t2'] = 500.0          # h      
+parDict['F2'] = 0.0300         # L/h
 
 global parLocation; parLocation = {}
 parLocation['V_start'] = 'bioreactor.V_start'
 parLocation['VXv_start'] = 'bioreactor.m_start[1]'
 parLocation['VXd_start'] = 'bioreactor.m_start[2]'
-parLocation['VXl_start'] = 'bioreactor.m_start[3]'
-parLocation['VG_start'] = 'bioreactor.m_start[4]'
-parLocation['VGn_start'] = 'bioreactor.m_start[5]'
-parLocation['VL_start'] = 'bioreactor.m_start[6]'
-parLocation['VN_start'] = 'bioreactor.m_start[7]'
+parLocation['VG_start'] = 'bioreactor.m_start[3]'
+parLocation['VGn_start'] = 'bioreactor.m_start[4]'
+parLocation['VL_start'] = 'bioreactor.m_start[5]'
+parLocation['VN_start'] = 'bioreactor.m_start[6]'
 
 parLocation['qG_max1'] = 'bioreactor.culture.qG_max1'
 parLocation['qG_max2'] = 'bioreactor.culture.qG_max2'
 parLocation['qGn_max1'] = 'bioreactor.culture.qGn_max1'
 parLocation['qGn_max2'] = 'bioreactor.culture.qGn_max2'
 parLocation['mu_d_max'] = 'bioreactor.culture.mu_d_max'
-parLocation['k_toxic'] = 'bioreactor.culture.k_toxic'
-parLocation['alpha'] = 'bioreactor.culture.alpha'
-parLocation['beta'] = 'bioreactor.culture.beta'
 
-parLocation['k_lysis_v'] = 'bioreactor.broth_decay.k_lysis_v'
-parLocation['k_lysis_d'] = 'bioreactor.broth_decay.k_lysis_d'
+parLocation['k_lysis'] = 'bioreactor.broth_decay.k_lysis'
 
 parLocation['eps'] = 'filter.eps' 
 parLocation['alpha_Xv'] = 'filter.alpha[1]' 
 parLocation['alpha_Xd'] = 'filter.alpha[2]'
-parLocation['alpha_Xl'] = 'filter.alpha[3]'
-parLocation['alpha_G'] = 'filter.alpha[4]'
-parLocation['alpha_Gn'] = 'filter.alpha[5]'
-parLocation['alpha_L'] = 'filter.alpha[6]'
-parLocation['alpha_N'] = 'filter.alpha[7]'
-parLocation['alpha_Pr'] = 'filter.alpha[8]'
+parLocation['alpha_G'] = 'filter.alpha[3]'
+parLocation['alpha_Gn'] = 'filter.alpha[4]'
+parLocation['alpha_L'] = 'filter.alpha[5]'
+parLocation['alpha_N'] = 'filter.alpha[6]'
+parLocation['alpha_Pr'] = 'filter.alpha[7]'
 
-parLocation['G_in'] = 'feedtank.c_in[4]'
-parLocation['Gn_in'] = 'feedtank.c_in[5]'
+parLocation['G_in'] = 'feedtank.c_in[3]'
+parLocation['Gn_in'] = 'feedtank.c_in[4]'
 
 parLocation['samplePeriod'] = 'cspr_openloop.samplePeriod'     
 parLocation['mu_ref'] = 'cspr_openloop.mu_ref'       
@@ -236,7 +222,7 @@ parLocation['F2'] = 'cspr_openloop.F2'
 
 # Extra only for describe()
 parLocation['mu'] = 'bioreactor.culture.mu'
-parLocation['mu_d'] = 'bioreactor.culture.mu_d'  
+parLocation['mu_d'] = 'bioreactor.culture.mu_d'    
 
 # Parameter value check - especially for hysteresis to avoid runtime error
 global parCheck; parCheck = []
@@ -246,7 +232,7 @@ parCheck.append("parDict['VG_start'] >= 0")
 parCheck.append("parDict['VGn_start'] >= 0")
 parCheck.append("parDict['VL_start'] >= 0")
 parCheck.append("parDict['VN_start'] >= 0")
-parCheck.append("parDict['t2'] >= parDict['t1']")
+parCheck.append("parDict['t1'] < parDict['t2']")
 
 # Create list of diagrams to be plotted by simu()
 global diagrams
@@ -315,10 +301,10 @@ def newplot(title='Perfusion cultivation',  plotType='TimeSeries'):
       ax62.set_xlabel('Time [h]')
 
       diagrams.clear()
-      diagrams.append("ax11.plot(t,sim_res['bioreactor.c[4]'], color='b', linestyle=linetype)")       
-      diagrams.append("ax12.plot(t,sim_res['bioreactor.c[6]'], color='r', linestyle=linetype)")   
-      diagrams.append("ax21.plot(t,sim_res['bioreactor.c[5]'], color='b', linestyle=linetype)")       
-      diagrams.append("ax22.plot(t,sim_res['bioreactor.c[7]'], color='r', linestyle=linetype)")  
+      diagrams.append("ax11.plot(t,sim_res['bioreactor.c[3]'], color='b', linestyle=linetype)")       
+      diagrams.append("ax12.plot(t,sim_res['bioreactor.c[5]'], color='r', linestyle=linetype)")   
+      diagrams.append("ax21.plot(t,sim_res['bioreactor.c[4]'], color='b', linestyle=linetype)")       
+      diagrams.append("ax22.plot(t,sim_res['bioreactor.c[6]'], color='r', linestyle=linetype)")  
       diagrams.append("ax31.plot(t,sim_res['bioreactor.c[1]'], color='b', linestyle=linetype)")       
       diagrams.append("ax32.plot(t,sim_res['bioreactor.c[2]'], color='r', linestyle=linetype)")  
       diagrams.append("ax41.plot(t,sim_res['bioreactor.culture.q[1]'], color='b', linestyle=linetype)")       
@@ -395,10 +381,10 @@ def newplot(title='Perfusion cultivation',  plotType='TimeSeries'):
 
       # List of commands to be executed by simu() after a simulation  
       diagrams.clear()
-      diagrams.append("ax11.plot(t,sim_res['bioreactor.c[4]'], color='b', linestyle=linetype)")       
-      diagrams.append("ax12.plot(t,sim_res['bioreactor.c[6]'], color='r', linestyle=linetype)")   
-      diagrams.append("ax21.plot(t,sim_res['bioreactor.c[5]'], color='b', linestyle=linetype)")       
-      diagrams.append("ax22.plot(t,sim_res['bioreactor.c[7]'], color='r', linestyle=linetype)")
+      diagrams.append("ax11.plot(t,sim_res['bioreactor.c[3]'], color='b', linestyle=linetype)")       
+      diagrams.append("ax12.plot(t,sim_res['bioreactor.c[5]'], color='r', linestyle=linetype)")   
+      diagrams.append("ax21.plot(t,sim_res['bioreactor.c[4]'], color='b', linestyle=linetype)")       
+      diagrams.append("ax22.plot(t,sim_res['bioreactor.c[6]'], color='r', linestyle=linetype)")
       diagrams.append("ax31.plot(t,sim_res['bioreactor.culture.Ind_qG_over'], color='g', linestyle=linetype)")       
       diagrams.append("ax32.plot(t,sim_res['bioreactor.culture.Ind_qGn_over'], color='g', linestyle=linetype)")    
       diagrams.append("ax41.plot(t,sim_res['bioreactor.c[1]'], color='b', linestyle=linetype)")       
@@ -412,6 +398,58 @@ def newplot(title='Perfusion cultivation',  plotType='TimeSeries'):
       diagrams.append("ax81.step(t,sim_res['CSPR'], color='g', linestyle=linetype)")       
       diagrams.append("ax82.step(t,sim_res['CSPR'], color='g', linestyle=linetype)")  
       
+   if plotType == 'Cytiva-16':
+
+      # Plot diagram
+      plt.figure()
+      ax11 = plt.subplot(6,2,1);  ax12 = plt.subplot(6,2,2)
+      ax21 = plt.subplot(6,2,3);  ax22 = plt.subplot(6,2,4)    
+      ax31 = plt.subplot(6,2,5);  ax32 = plt.subplot(6,2,6) 
+      ax41 = plt.subplot(6,2,7);  ax42 = plt.subplot(6,2,8) 
+      ax51 = plt.subplot(6,2,9);  ax52 = plt.subplot(6,2,10) 
+      ax61 = plt.subplot(6,2,11); ax62 = plt.subplot(6,2,12) 
+
+      ax11.set_title(title)
+      ax11.grid()
+      ax11.set_ylabel('G [mM]')
+
+      ax12.grid()
+      ax12.set_ylabel('L [mM]')
+
+      ax21.grid()
+      ax21.set_ylabel('Gn[mM]')
+
+      ax22.grid()
+      ax22.set_ylabel('N [mM]')
+
+      ax31.grid()
+      ax31.set_ylabel('Xv [1E6/mL]')
+
+      ax32.grid()
+      ax32.set_ylabel('Xd [1E6/mL]')
+
+      ax41.grid()
+      ax41.set_ylim([0,0.9])
+      ax41.set_ylabel('mu [1/d]')
+
+      ax42.grid()
+      ax42.set_ylim([0,0.9])
+      ax42.set_ylabel('mu_d [1/d]')
+
+      ax51.grid()
+      ax51.set_ylabel('CSPR [pL/cell/d]')
+
+      ax52.grid()
+      ax52.set_ylim([0,2.5])
+      ax52.set_ylabel('V reactor [L]')
+
+      ax61.grid()
+      ax61.set_ylabel('F [L/h]')
+      ax61.set_xlabel('Time [d]')
+
+      ax62.grid()
+      ax62.set_ylabel('V harvest [L]')
+      ax62.set_xlabel('Time [d]')
 
    if plotType == 'Cytiva-18':
  
@@ -528,8 +566,6 @@ def describe(name, decimals=3):
 
       Xv  = model.get('liquidphase.Xv')[0]; Xv_description = model.get_variable_description('liquidphase.Xv'); Xv_mw = model.get('liquidphase.mw[1]')[0]
       Xd = model.get('liquidphase.Xd')[0]; Xd_description = model.get_variable_description('liquidphase.Xd'); Xd_mw = model.get('liquidphase.mw[2]')[0]
-      Xl = model.get('liquidphase.Xl')[0]; Xl_description = model.get_variable_description('liquidphase.Xl'); Xl_mw = model.get('liquidphase.mw[2]')[0]
-
       G = model.get('liquidphase.G')[0]; G_description = model.get_variable_description('liquidphase.G'); G_mw = model.get('liquidphase.mw[3]')[0]
       Gn = model.get('liquidphase.Gn')[0]; Gn_description = model.get_variable_description('liquidphase.Gn'); Gn_mw = model.get('liquidphase.mw[4]')[0]
       L = model.get('liquidphase.L')[0]; L_description = model.get_variable_description('liquidphase.L'); L_mw = model.get('liquidphase.mw[5]')[0]
@@ -540,7 +576,6 @@ def describe(name, decimals=3):
       print()
       print(Xv_description, 'index = ', Xv, 'molecular weight = ', Xv_mw, 'Da')
       print(Xd_description, '  index = ', Xd, 'molecular weight = ', Xd_mw, 'Da')
-      print(Xl_description, '  index = ', Xl, 'molecular weight = ', Xl_mw, 'Da')
       print(G_description, '     index = ', G, 'molecular weight = ', G_mw, 'Da')
       print(Gn_description, '   index = ', Gn, 'molecular weight = ', Gn_mw, 'Da')
       print(L_description, '     index = ', L, 'molecular weight = ', L_mw, 'Da')
