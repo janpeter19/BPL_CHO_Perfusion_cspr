@@ -90,7 +90,7 @@ elif platform.system() == 'Linux':
    flag_vendor = 'OM'
    flag_type = 'ME'
    if flag_vendor in ['OM','om']:
-      print('Linux - run FMU pre-compiled OpenModelica 1.21.0') 
+      print('Linux - run FMU pre-compiled OpenModelica') 
       if flag_type in ['CS','cs']:         
          fmu_model ='BPL_CHO_Perfusion_cspr_openloop_linux_om_cs.fmu'    
          model = load_fmu(fmu_model, log_level=0) 
