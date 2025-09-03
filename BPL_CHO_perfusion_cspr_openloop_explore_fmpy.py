@@ -25,6 +25,8 @@
 # 2025-03-03 - Corrected describe('broth')
 # 2025-06-12 - Test MSL 4.1.0 with OpenModelica genreated FMU
 # 2025-07-25 - Update BPL 2.3.1
+# 2025-09-01 - Test of FMU made in Ubuntu 24.04 and run in Ubuntu 24.04 and does not work, same as earlier
+# 2025-09-03 - Updated opts_std['ncp'] = 1000 mainly for ME (and CS) and now works with FMPy=0.3.26
 #-------------------------------------------------------------------------------------------------------------------
 
 # Setup framework
@@ -67,16 +69,17 @@ elif platform.system() == 'Linux':
          fmu_model ='BPL_CHO_Perfusion_cspr_openloop_linux_om_cs.fmu'    
          model_description = read_model_description(fmu_model) 
       if flag_type in ['ME','me']:         
-         fmu_model ='BPL_CHO_Perfusion_cspr_openloop_linux_om_me.fmu'    
+         fmu_model ='BPL_CHO_Perfusion_cspr_openloop_linux_om_me.fmu'   
+#        fmu_model ='BPL_CHO_Perfusion_cspr_openloop_linux_2404_om_me.fmu'    
          model_description = read_model_description(fmu_model) 
    else:    
       print('There is no FMU for this platform')
 
 # Provide various opts-profiles
 if flag_type in ['CS', 'cs']:
-   opts_std = {'ncp': 500}
+   opts_std = {'ncp': 1000}
 elif flag_type in ['ME', 'me']:
-   opts_std = {'ncp': 500}
+   opts_std = {'ncp': 1000}
 else:    
    print('There is no FMU for this platform')
 
