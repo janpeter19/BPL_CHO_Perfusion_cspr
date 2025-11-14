@@ -57,6 +57,8 @@
 # 2025-06-12 - Test MSL 4.1.0 with OpenModelica genreated FMU
 # 2025-07-25 - Update BPL 2.3.1
 # 2025-11-09 - FMU-explore 1.0.2
+# 2025-11-13 - Global declaration removed outside functions
+# 2025-11-14 - FMU-explore 1.0.2 corrected
 #------------------------------------------------------------------------------------------------------------------
 
 # Setup framework
@@ -82,7 +84,6 @@ if platform.system() == 'Linux': locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
 #------------------------------------------------------------------------------------------------------------------
 
 # Provde the right FMU and load for different platforms in user dialogue:
-global model
 if platform.system() == 'Windows':
    print('Windows - run FMU pre-compiled JModelica 2.14')
    flag_vendor = 'JM'
@@ -130,8 +131,8 @@ else:
    print('There is no FMU for this platform')
 
 # Simulation time
-global simulationTime; simulationTime = 1000.0
-global prevFinalTime; prevFinalTime = 0
+simulationTime = 1000.0
+prevFinalTime = 0
 
 # Dictionary of time discrete states
 timeDiscreteStates = {} 
@@ -139,7 +140,7 @@ timeDiscreteStates = {}
 # Define a minimal compoent list of the model as a starting point for describe('parts')
 component_list_minimum = ['bioreactor', 'bioreactor.culture', 'bioreactor.broth_decay']
 
-
+# Process diagram
 fmu_process_diagram ='BPL_CHO_Perfusion_cspr_openloop_process_diagram_om.png'
 
 #------------------------------------------------------------------------------------------------------------------
@@ -252,7 +253,6 @@ parCheck.append("parValue['VN_start'] >= 0")
 parCheck.append("parValue['t2'] >= parValue['t1']")
 
 # Create list of diagrams to be plotted by simu()
-global diagrams
 diagrams = []
 
 def newplot(title='Perfusion cultivation',  plotType='TimeSeries'):
@@ -565,7 +565,7 @@ FMU_explore = 'FMU-explore version 1.0.2'
 #------------------------------------------------------------------------------------------------------------------
 
 # Define function par() for parameter update
-def par(*x, parValue=parValue, parCheck=parCheck, parLocation=parLocation, **x_kwarg):
+def par(*x, parValue=parValue, **x_kwarg):
    """ Set parameter values if available in the predefined dictionaryt parValue. """
    x_kwarg.update(*x)
    x_temp = {}
@@ -615,16 +615,15 @@ def readParLocation(file, parLocation=parLocation):
       for k in list(range(len(table))):
          parLocation_local[table['Par'][k]] = table['Location'][k]
    parLocation.update(parLocation_local)
-   
-# Define function disp() for display of initial values and parameters
-def dict_reverser(d):
-   seen = set()
-   return {v: k for k, v in d.items() if v not in seen or seen.add(v)}
-   
+      
 def disp(name='', decimals=3, mode='short', parValue=parValue, parLocation=parLocation):
    """ Display intial values and parameters in the model that include "name" and is in parLocation list.
        Note, it does not take the value from the dictionary par but from the model. """
    global model
+
+   def dict_reverser(d):
+      seen = set()
+      return {v: k for k, v in d.items() if v not in seen or seen.add(v)}
    
    if mode in ['short']:
       k = 0
@@ -680,7 +679,7 @@ def simu(simulationTimeLocal=simulationTime, mode='Initial', options=opts_std, \
       and plot window also setup before."""
     
    # Global variables
-   global model, prevFinalTime, simulationTime, sim_res, t
+   global model, prevFinalTime, sim_res, t
    
    # Simulation flag
    simulationDone = False
