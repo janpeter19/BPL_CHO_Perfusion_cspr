@@ -2,6 +2,7 @@
 # Author: Jan Peter Axelsson
 #------------------------------------------------------------------------------------------------------------------
 # 2026-08-27 - Created
+# 2026-09-09 - Drop global prevFinalTime and let it be just intenral to fmu_explore_pyfmi
 #------------------------------------------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------------------------------------------
@@ -75,7 +76,6 @@ else:
 
 # Simulation time
 simulationTime = 1000.0
-prevFinalTime = 0
 
 # Dictionary of time discrete states
 timeDiscreteStates = {} 
