@@ -4,76 +4,76 @@
 # 2026-08-27 - Created
 # 2026-09-09 - Drop global prevFinalTime and let it be just intenral to fmu_explore_pyfmi
 # 2026-09-14 - Move definition of stateValue to the fmu_explore_pyfmi module ver 1.2.0
+# 2026-09-23 - Decrease the framework to what is necessary and move matlotlib to the other setup-file
+# 2026-09-23 - Change indentaiton from 3 spaces to 4
 #------------------------------------------------------------------------------------------------------------------
 
-#------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------
 #  Framework
-#------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------
 
 # Setup framework
-import sys
 import platform
 import locale
-import matplotlib.pyplot as plt 
 from pyfmi import load_fmu
 
 # Set the environment - for Linux a JSON-file in the FMU is read
 if platform.system() == 'Linux': locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
 
-#------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------
 #  Setup application FMU
-#------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------
 
 # Provde the right FMU and load for different platforms in user dialogue:
 if platform.system() == 'Windows':
-   print('Windows - run FMU pre-compiled JModelica 2.14')
-   flag_vendor = 'JM'
-   flag_type = 'CS'
-   fmu_model ='BPL_CHO_Perfusion_cspr_openloop_windows_jm_cs.fmu'        
-   model = load_fmu(fmu_model, log_level=0)  
+    print('Windows - run FMU pre-compiled JModelica 2.14')
+    flag_vendor = 'JM'
+    flag_type = 'CS'
+    fmu_model ='BPL_CHO_Perfusion_cspr_openloop_windows_jm_cs.fmu'
+    model = load_fmu(fmu_model, log_level=0)  
 elif platform.system() == 'Linux':
-   flag_vendor = 'OM'
-   flag_type = 'ME'
-   if flag_vendor in ['OM','om']:
-      print('Linux - run FMU pre-compiled OpenModelica') 
-      if flag_type in ['CS','cs']:         
-         fmu_model ='BPL_CHO_Perfusion_cspr_openloop_linux_om_cs.fmu'    
-         model = load_fmu(fmu_model, log_level=0) 
-      if flag_type in ['ME','me']:         
-         fmu_model ='BPL_CHO_Perfusion_cspr_openloop_linux_om_me.fmu'    
-         model = load_fmu(fmu_model, log_level=0)
-   else:    
-      print('There is no FMU for this platform')
+    flag_vendor = 'OM'
+    flag_type = 'ME'
+    if flag_vendor in ['OM','om']:
+        print('Linux - run FMU pre-compiled OpenModelica')
+        if flag_type in ['CS','cs']:         
+            fmu_model ='BPL_CHO_Perfusion_cspr_openloop_linux_om_cs.fmu'
+            model = load_fmu(fmu_model, log_level=0) 
+        if flag_type in ['ME','me']:         
+            fmu_model ='BPL_CHO_Perfusion_cspr_openloop_linux_om_me.fmu'
+            model = load_fmu(fmu_model, log_level=0)
+    else:    
+        print('There is no FMU for this platform')
 
 # Provide various opts-profiles
 if flag_type in ['CS', 'cs']:
-   opts_std = model.simulate_options()
-   opts_std['silent_mode'] = True
-   opts_std['ncp'] = 500 
-   opts_std['result_handling'] = 'binary'     
+    opts_std = model.simulate_options()
+    opts_std['silent_mode'] = True
+    opts_std['ncp'] = 500 
+    opts_std['result_handling'] = 'binary'
 elif flag_type in ['ME', 'me']:
-   opts_std = model.simulate_options()
-   opts_std["CVode_options"]["verbosity"] = 50 
-   opts_std['ncp'] = 500 
-   opts_std['result_handling'] = 'binary'  
+    opts_std = model.simulate_options()
+    opts_std["CVode_options"]["verbosity"] = 50
+    opts_std['ncp'] = 500 
+    opts_std['result_handling'] = 'binary'
 else:    
-   print('There is no FMU for this platform')
+    print('There is no FMU for this platform')
   
 # Provide various MSL and BPL versions
 if flag_vendor in ['JM', 'jm']:
-   MSL_usage = model.get('MSL.usage')[0]
-   MSL_version = model.get('MSL.version')[0]
-   BPL_version = model.get('BPL.version')[0]
+    MSL_usage = model.get('MSL.usage')[0]
+    MSL_version = model.get('MSL.version')[0]
+    BPL_version = model.get('BPL.version')[0]
 elif flag_vendor in ['OM', 'om']:
-   MSL_usage = '4.1.0 - used components: RealInput, RealOutput' 
-   MSL_version = '4.1.0'
-   BPL_version = 'Bioprocess Library version 2.3.2' 
+    MSL_usage = '4.1.0 - used components: RealInput, RealOutput'
+    MSL_version = '4.1.0'
+    BPL_version = 'Bioprocess Library version 2.3.2'
 else:    
-   print('There is no FMU for this platform')
+    print('There is no FMU for this platform')
 
-#------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------
 #  Specific application constructs: parValue, parLocation, parCheck, diagrams, ax, lines
-#------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------
 
 # Simulation time
 simulationTime = 1000.0
@@ -90,13 +90,13 @@ fmu_process_diagram ='BPL_CHO_Perfusion_cspr_openloop_process_diagram_om.png'
 # Create parValue
 parValue = {}
 parValue['V_start']   = 0.35          # L
-parValue['VXv_start'] = 0.35*0.2       
-parValue['VXd_start'] = 0.0 
-parValue['VXl_start'] = 0.0              
-parValue['VG_start'] = 0.35*18.0       
-parValue['VGn_start'] = 0.35*10.0      
-parValue['VL_start'] = 0.0             
-parValue['VN_start'] = 0.0             
+parValue['VXv_start'] = 0.35*0.2
+parValue['VXd_start'] = 0.0
+parValue['VXl_start'] = 0.0
+parValue['VG_start'] = 0.35*18.0
+parValue['VGn_start'] = 0.35*10.0
+parValue['VL_start'] = 0.0
+parValue['VN_start'] = 0.0
 
 parValue['qG_max1'] = 0.2971
 parValue['qG_max2'] = 0.0384
@@ -166,16 +166,16 @@ parLocation['alpha_Pr'] = 'filter.alpha[8]'
 parLocation['G_in'] = 'feedtank.c_in[4]'
 parLocation['Gn_in'] = 'feedtank.c_in[5]'
 
-parLocation['samplePeriod'] = 'cspr_openloop.samplePeriod'     
-parLocation['mu_ref'] = 'cspr_openloop.mu_ref'       
-parLocation['t1'] = 'cspr_openloop.t1'                
-parLocation['F1'] = 'cspr_openloop.F1'         
-parLocation['t2'] = 'cspr_openloop.t2'                
-parLocation['F2'] = 'cspr_openloop.F2'     
+parLocation['samplePeriod'] = 'cspr_openloop.samplePeriod'
+parLocation['mu_ref'] = 'cspr_openloop.mu_ref'
+parLocation['t1'] = 'cspr_openloop.t1'
+parLocation['F1'] = 'cspr_openloop.F1'
+parLocation['t2'] = 'cspr_openloop.t2'
+parLocation['F2'] = 'cspr_openloop.F2'
 
 # Extra only for describe()
 parLocation['mu'] = 'bioreactor.culture.mu'
-parLocation['mu_d'] = 'bioreactor.culture.mu_d'  
+parLocation['mu_d'] = 'bioreactor.culture.mu_d'
 
 # Parameter value check - especially for hysteresis to avoid runtime error
 parCheck = []
@@ -195,4 +195,3 @@ ax = []
 
 # Create list of pens for the diagrams
 lines = ['-','--',':','-.']
-
