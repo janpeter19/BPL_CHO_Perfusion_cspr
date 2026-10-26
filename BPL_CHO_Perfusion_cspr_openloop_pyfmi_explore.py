@@ -1,4 +1,4 @@
-# setup application functions BPL_CHO_Perfusion_cspr_openloop, dependent on previous import from fmu_explore
+# Setup application functions BPL_CHO_Perfusion_cspr_openloop, dependent on previous import from fmu_explore
 # Author: Jan Peter Axelsson
 # ------------------------------------------------------------------------------------------------------------------
 # 2026-08-27 - Created
