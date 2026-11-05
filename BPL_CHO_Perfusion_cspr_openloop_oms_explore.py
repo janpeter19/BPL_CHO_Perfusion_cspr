@@ -5,6 +5,7 @@
 # 2026-09-25 - Brought in matplotlib.pylot since used here,  as well as numpy since useful generally
 # 2026-09-25 - Change indentaiton from 3 spaces to 4 using black
 # 2026-10-24 - Added clean-up section at the end
+# 2026-11-05 - Modified for OMS
 # ------------------------------------------------------------------------------------------------------------------
 
 # --------------------------------------------------------------------------------------------------
@@ -12,6 +13,7 @@
 # --------------------------------------------------------------------------------------------------
 
 import numpy as np
+import scipy.io
 import matplotlib.pyplot as plt
 
 # --------------------------------------------------------------------------------------------------
@@ -99,40 +101,40 @@ def newplot(title="Perfusion cultivation", plotType="TimeSeries"):
 
         diagrams.clear()
         diagrams.append(
-            "ax[0].plot(t,sim_res['bioreactor.c[4]'], color='b', linestyle=linetype)"
+            "ax[0].plot(t,sim_res['Perfusion_cspr_openloop.bioreactor.c[4]'], color='b', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[1].plot(t,sim_res['bioreactor.c[6]'], color='r', linestyle=linetype)"
+            "ax[1].plot(t,sim_res['Perfusion_cspr_openloop.bioreactor.c[6]'], color='r', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[2].plot(t,sim_res['bioreactor.c[5]'], color='b', linestyle=linetype)"
+            "ax[2].plot(t,sim_res['Perfusion_cspr_openloop.bioreactor.c[5]'], color='b', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[3].plot(t,sim_res['bioreactor.c[7]'], color='r', linestyle=linetype)"
+            "ax[3].plot(t,sim_res['Perfusion_cspr_openloop.bioreactor.c[7]'], color='r', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[4].plot(t,sim_res['bioreactor.c[1]'], color='b', linestyle=linetype)"
+            "ax[4].plot(t,sim_res['Perfusion_cspr_openloop.bioreactor.c[1]'], color='b', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[5].plot(t,sim_res['bioreactor.c[2]'], color='r', linestyle=linetype)"
+            "ax[5].plot(t,sim_res['Perfusion_cspr_openloop.bioreactor.c[2]'], color='r', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[6].plot(t,sim_res['bioreactor.culture.q[1]'], color='b', linestyle=linetype)"
+            "ax[6].plot(t,sim_res['Perfusion_cspr_openloop.bioreactor.culture.q[1]'], color='b', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[7].plot(t,sim_res['bioreactor.culture.q[2]'], color='r', linestyle=linetype)"
+            "ax[7].plot(t,sim_res['Perfusion_cspr_openloop.bioreactor.culture.q[2]'], color='r', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[8].plot(t,sim_res['harvesttank.inlet.F']*sim_res['harvesttank.inlet.c[1]'], color='b', linestyle=linetype)"
+            "ax[8].plot(t,sim_res['Perfusion_cspr_openloop.harvesttank.inlet.F']*sim_res['harvesttank.inlet.c[1]'], color='b', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[9].plot(t,sim_res['bioreactor.V'], color='b', linestyle=linetype)"
+            "ax[9].plot(t,sim_res['Perfusion_cspr_openloop.bioreactor.V'], color='b', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[10].step(t,sim_res['bioreactor.inlet[1].F'], color='b', where='post', linestyle=linetype)"
+            "ax[10].step(t,sim_res['Perfusion_cspr_openloop.bioreactor.inlet[1].F'], color='b', where='post', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[11].plot(t,sim_res['harvesttank.V'], color='b', linestyle=linetype)"
+            "ax[11].plot(t,sim_res['Perfusion_cspr_openloop.harvesttank.V'], color='b', linestyle=linetype)"
         )
 
     if plotType == "Extended":
@@ -227,49 +229,49 @@ def newplot(title="Perfusion cultivation", plotType="TimeSeries"):
         # List of commands to be executed by simu() after a simulation
         diagrams.clear()
         diagrams.append(
-            "ax[0].plot(t,sim_res['bioreactor.c[4]'], color='b', linestyle=linetype)"
+            "ax[0].plot(t,sim_res['Perfusion_cspr_openloop.bioreactor.c[4]'], color='b', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[1].plot(t,sim_res['bioreactor.c[6]'], color='r', linestyle=linetype)"
+            "ax[1].plot(t,sim_res['Perfusion_cspr_openloop.bioreactor.c[6]'], color='r', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[2].plot(t,sim_res['bioreactor.c[5]'], color='b', linestyle=linetype)"
+            "ax[2].plot(t,sim_res['Perfusion_cspr_openloop.bioreactor.c[5]'], color='b', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[3].plot(t,sim_res['bioreactor.c[7]'], color='r', linestyle=linetype)"
+            "ax[3].plot(t,sim_res['Perfusion_cspr_openloop.bioreactor.c[7]'], color='r', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[4].plot(t,sim_res['bioreactor.culture.Ind_qG_over'], color='g', linestyle=linetype)"
+            "ax[4].plot(t,sim_res['Perfusion_cspr_openloop.bioreactor.culture.Ind_qG_over'], color='g', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[5].plot(t,sim_res['bioreactor.culture.Ind_qGn_over'], color='g', linestyle=linetype)"
+            "ax[5].plot(t,sim_res['Perfusion_cspr_openloop.bioreactor.culture.Ind_qGn_over'], color='g', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[6].plot(t,sim_res['bioreactor.c[1]'], color='b', linestyle=linetype)"
+            "ax[6].plot(t,sim_res['Perfusion_cspr_openloop.bioreactor.c[1]'], color='b', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[7].plot(t,sim_res['bioreactor.c[2]'], color='r', linestyle=linetype)"
+            "ax[7].plot(t,sim_res['Perfusion_cspr_openloop.bioreactor.c[2]'], color='r', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[8].plot(t,sim_res['bioreactor.culture.q[1]'], color='b', linestyle=linetype)"
+            "ax[8].plot(t,sim_res['Perfusion_cspr_openloop.bioreactor.culture.q[1]'], color='b', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[9].plot(t,sim_res['bioreactor.culture.q[2]'], color='r', linestyle=linetype)"
+            "ax[9].plot(t,sim_res['Perfusion_cspr_openloop.bioreactor.culture.q[2]'], color='r', linestyle=linetype)"
         )
         diagrams.append(
             "ax[10].plot(t,sim_res['harvesttank.inlet.F']*sim_res['harvesttank.inlet.c[1]'], color='b', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[11].plot(t,sim_res['bioreactor.V'], color='b', linestyle=linetype)"
+            "ax[11].plot(t,sim_res['Perfusion_cspr_openloop.bioreactor.V'], color='b', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[12].step(t,sim_res['bioreactor.inlet[1].F'], color='b', linestyle=linetype)"
+            "ax[12].step(t,sim_res['Perfusion_cspr_openloop.bioreactor.inlet[1].F'], color='b', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[13].plot(t,sim_res['harvesttank.V'], color='b', linestyle=linetype)"
+            "ax[13].plot(t,sim_res['Perfusion_cspr_openloop.harvesttank.V'], color='b', linestyle=linetype)"
         )
-        diagrams.append("ax[14].step(t,sim_res['CSPR'], color='g', linestyle=linetype)")
-        diagrams.append("ax[15].step(t,sim_res['CSPR'], color='g', linestyle=linetype)")
+        diagrams.append("ax[14].step(t,sim_res['Perfusion_cspr_openloop.CSPR'], color='g', linestyle=linetype)")
+        diagrams.append("ax[15].step(t,sim_res['Perfusion_cspr_openloop.CSPR'], color='g', linestyle=linetype)")
 
 
 def describe(name, decimals=3):
@@ -279,54 +281,6 @@ def describe(name, decimals=3):
         print(
             "Reactor culture CHO-MAb - cell line HB-58 American Culture Collection ATCC"
         )
-
-    elif name in ["broth", "liquidphase", "liquid-phase" "media"]:
-
-        Xv = model_get("liquidphase.Xv")
-        Xv_description = model_get_variable_description("liquidphase.Xv")
-        Xv_mw = model_get("liquidphase.mw[1]")
-
-        Xd = model_get("liquidphase.Xd")
-        Xd_description = model_get_variable_description("liquidphase.Xd")
-        Xd_mw = model_get("liquidphase.mw[2]")
-
-        Xl = model_get("liquidphase.Xl")
-        Xl_description = model_get_variable_description("liquidphase.Xl")
-        Xl_mw = model_get("liquidphase.mw[2]")
-
-        G = model_get("liquidphase.G")
-        G_description = model_get_variable_description("liquidphase.G")
-        G_mw = model_get("liquidphase.mw[3]")
-
-        Gn = model_get("liquidphase.Gn")
-        Gn_description = model_get_variable_description("liquidphase.Gn")
-        Gn_mw = model_get("liquidphase.mw[4]")
-
-        L = model_get("liquidphase.L")
-        L_description = model_get_variable_description("liquidphase.L")
-        L_mw = model_get("liquidphase.mw[5]")
-
-        N = model_get("liquidphase.N")
-        N_description = model_get_variable_description("liquidphase.N")
-        N_mw = model_get("liquidphase.mw[6]")
-
-        Pr = model_get("liquidphase.Pr")
-        Pr_description = model_get_variable_description("liquidphase.Pr")
-        Pr_mw = model_get("liquidphase.mw[7]")
-
-        print("Reactor broth substances included in the model")
-        print()
-        print(Xv_description, "index = ", Xv, "molecular weight = ", Xv_mw, "Da")
-        print(Xd_descriptio, "  index = ", Xd, "molecular weight = ", Xd_mw, "Da")
-        print(Xl_description, " index = ", Xl, "molecular weight = ", Xl_mw, "Da")
-        print(G_description, "     index = ", G, "molecular weight = ", G_mw, "Da")
-        print(Gn_description, "   index = ", Gn, "molecular weight = ", Gn_mw, "Da")
-        print(L_description, "     index = ", L, "molecular weight = ", L_mw, "Da")
-        print(N_description, "     index = ", N, "molecular weight = ", N_mw, "Da")
-        print(Pr_description, "     index = ", Pr, "molecular weight = ", Pr_mw, "Da")
-
-    elif name in ["parts"]:
-        describe_parts(component_list_minimum)
 
     elif name in ["MSL"]:
         describe_MSL()
@@ -346,10 +300,10 @@ FMU_explore_info()
 #  Clean-up
 #------------------------------------------------------------------------------------------------------------------
 
-del parValue, parLocation, parCheck, keyVariables
-del model_description, fmu_model, fmu_process_diagram
+del parValue, parLocation, parCheck
+del fmu_model, fmu_process_diagram
 del MSL_usage, MSL_version, BPL_version
-del opts_std, simulationTime, timeDiscreteStates
+del options, simulationTime, timeDiscreteStates
 del flag_type, flag_vendor
 del lines
 
