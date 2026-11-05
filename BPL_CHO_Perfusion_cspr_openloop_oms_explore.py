@@ -259,7 +259,7 @@ def newplot(title="Perfusion cultivation", plotType="TimeSeries"):
             "ax[9].plot(t,sim_res['Perfusion_cspr_openloop.bioreactor.culture.q[2]'], color='r', linestyle=linetype)"
         )
         diagrams.append(
-            "ax[10].plot(t,sim_res['Perfusion_cspr_openloop.harvesttank.inlet.F']*sim_res['harvesttank.inlet.c[1]'], color='b', linestyle=linetype)"
+            "ax[10].plot(t,sim_res['Perfusion_cspr_openloop.harvesttank.inlet.F']*sim_res['Perfusion_cspr_openloop.harvesttank.inlet.c[1]'], color='b', linestyle=linetype)"
         )
         diagrams.append(
             "ax[11].plot(t,sim_res['Perfusion_cspr_openloop.bioreactor.V'], color='b', linestyle=linetype)"
